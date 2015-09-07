@@ -32,6 +32,7 @@ public class Client {
 
             System.out.println("Connection successfully established");
 
+            //TODO move game logic to a separate method
             Scanner scan;
             String guess;
             String state = "";

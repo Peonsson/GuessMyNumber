@@ -32,10 +32,10 @@ public class Server {
                 System.out.println(errorMsg);
                 aSocket.send(new DatagramPacket(errorMsg.getBytes(), errorMsg.length(), request.getAddress(), request.getPort()));
             }
-
             System.out.println("Connection successfully established");
-            GuessMyNumber myGame = new GuessMyNumber();
 
+            //TODO move game logic to a separate method
+            GuessMyNumber myGame = new GuessMyNumber();
             while (true) {
                 buffer = new byte[1000];
                 request = new DatagramPacket(buffer, buffer.length);
@@ -54,6 +54,7 @@ public class Server {
                 aSocket.send(reply);
                 System.out.println("Sent: " + new String(reply.getData(), 0, request.getLength()));
             }
+            //TODO Fin handshake?
             System.out.println("Game over! Halting execution.");
         } catch (SocketException e) { System.err.println("Socket: " + e.getMessage());
         } catch (IOException e) { System.err.println("IO: " + e.getMessage());
