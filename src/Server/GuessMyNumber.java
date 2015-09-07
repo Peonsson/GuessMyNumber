@@ -12,13 +12,15 @@ public class GuessMyNumber {
     public GuessMyNumber(){
         Random rand = new Random();
         answer = rand.nextInt(100) + 1;
+        System.out.println("Correct answer: " + Integer.toString(answer));
     }
 
-    public int compare(int guess) {
+    public String compare(int guess) {
         if(guess < answer)
-            return -1;
+            return "LOW";
         else if(guess > answer)
-            return 1;
-        else return 0;
+            return "HIGH";
+        else
+            return "CORRECT";
     }
 }
