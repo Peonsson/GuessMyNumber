@@ -11,7 +11,7 @@ public class Client {
 
     public static void main(String[] args) {
         DatagramSocket aSocket = null;
-        int serverPort = 50115;
+        int serverPort = 50120;
 
         try {
             aSocket = new DatagramSocket();

@@ -10,7 +10,7 @@ import java.net.SocketException;
  */
 public class Server {
     public static void main(String[] args) {
-        int serverPort = 50115;
+        int serverPort = 50120;
         DatagramSocket aSocket = null;
         try {
             aSocket = new DatagramSocket(serverPort);
