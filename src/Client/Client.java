@@ -15,11 +15,13 @@ public class Client {
 
         try {
             aSocket = new DatagramSocket();
+            aSocket.setSoTimeout(5000);
             InetAddress aHost = InetAddress.getLocalHost();
 
             byte[] helloMsg = "hello".getBytes();
             DatagramPacket request = new DatagramPacket(helloMsg, helloMsg.length, aHost, serverPort);
             aSocket.send(request);
+
             System.out.println("Sent: " + new String(request.getData(), 0, request.getLength()));
 
             byte[] buffer = new byte[1000];
@@ -59,10 +61,20 @@ public class Client {
             System.out.println("Sent: " + new String(finDatagramPacket.getData(), 0, finDatagramPacket.getLength()));
             System.out.println("You won! Halting execution.");
 
-        } catch (UnknownHostException e) { System.err.println("IP: " + e.getMessage());
-        } catch (SocketException e) { System.err.println("Socket: " + e.getMessage());
-        } catch (IOException e) { System.err.println("IO: " + e.getMessage());
-        } finally {
+        }
+        catch (SocketTimeoutException ste) {
+            System.err.println("Timeout!");
+        }
+        catch (UnknownHostException e) {
+            System.err.println("IP: " + e.getMessage());
+        }
+        catch (SocketException e) {
+            System.err.println("Socket: " + e.getMessage());
+        }
+        catch (IOException e) {
+            System.err.println("IO: " + e.getMessage());
+        }
+        finally {
             aSocket.close();
         }
     }

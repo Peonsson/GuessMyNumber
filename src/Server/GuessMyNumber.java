@@ -16,9 +16,9 @@ public class GuessMyNumber {
     }
 
     public String compare(int guess) {
-        if(guess < answer)
+        if (guess < answer)
             return "LOW";
-        else if(guess > answer)
+        else if (guess > answer)
             return "HIGH";
         else
             return "CORRECT";

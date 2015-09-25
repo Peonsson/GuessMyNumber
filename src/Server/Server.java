@@ -4,22 +4,25 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 
 /**
  * Created by johanpettersson on 07/09/15.
  */
 public class Server {
     public static void main(String[] args) {
+        int numOfRetries = 0;
         int serverPort = 50120;
         DatagramSocket aSocket = null;
         try {
             aSocket = new DatagramSocket(serverPort);
             byte[] buffer = new byte[1000];
-
             DatagramPacket request = new DatagramPacket(buffer, buffer.length);
+
             aSocket.receive(request);
             String str = new String(request.getData(), 0, request.getLength());
-            if(str.equals("hello")) {
+            if (str.equals("hello")) {
+                aSocket.setSoTimeout(5000);
                 System.out.println("Got: " + new String(request.getData(), 0, request.getLength()));
                 String okMsg = "OK";
                 DatagramPacket okDatagramPacket = new DatagramPacket(okMsg.getBytes(), okMsg.getBytes().length, request.getAddress(), request.getPort());
@@ -45,6 +48,7 @@ public class Server {
                 //TODO move game logic to a separate method
                 //TODO felhantering om användaren inte skickar siffror.
                 GuessMyNumber myGame = new GuessMyNumber();
+                aSocket.setSoTimeout(60000);
                 while (true) {
                     buffer = new byte[1000];
                     request = new DatagramPacket(buffer, buffer.length);
@@ -72,9 +76,21 @@ public class Server {
 
             //TODO Fin handshake?
             System.out.println("Game over! Halting execution.");
-        } catch (SocketException e) { System.err.println("Socket: " + e.getMessage());
-        } catch (IOException e) { System.err.println("IO: " + e.getMessage());
-        }finally {
+        }
+        catch (SocketTimeoutException ste) {
+//            if (numOfRetries < 5) {
+//
+//            }
+
+            System.err.println("Timeout on socket");
+        }
+        catch (SocketException e) {
+            System.err.println("Socket: " + e.getMessage());
+        }
+        catch (IOException e) {
+            System.err.println("IO: " + e.getMessage());
+        }
+        finally {
             aSocket.close();
         }
     }
