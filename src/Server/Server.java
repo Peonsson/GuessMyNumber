@@ -7,7 +7,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
 /**
- * Created by johanpettersson on 07/09/15.
+ * Created by Peonsson and roppe546 on 07/09/15.
  */
 public class Server {
     public static void main(String[] args) {
