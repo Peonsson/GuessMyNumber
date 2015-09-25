@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.*;
 
 /**
- * Created by johanpettersson on 07/09/15.
+ * Created by Peonsson and roppe546 on 07/09/15.
  */
 public class Server {
     private static DatagramSocket aSocket = null;
