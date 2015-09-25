@@ -18,10 +18,8 @@ public class Client {
             InetAddress aHost = InetAddress.getLocalHost();
 
             byte[] helloMsg = "hello".getBytes();
-
             DatagramPacket request = new DatagramPacket(helloMsg, helloMsg.length, aHost, serverPort);
             aSocket.send(request);
-
             System.out.println("Sent: " + new String(request.getData(), 0, request.getLength()));
 
             byte[] buffer = new byte[1000];
@@ -31,6 +29,12 @@ public class Client {
             System.out.println("Got: " + new String(reply.getData(), 0, reply.getLength()));
 
             System.out.println("Connection successfully established");
+
+            //in production
+            byte[] startMsg = "start".getBytes();
+            DatagramPacket startRequest = new DatagramPacket(startMsg, startMsg.length, aHost, serverPort);
+            aSocket.send(startRequest);
+            System.out.println("Sent: " + new String(startRequest.getData(), 0, startRequest.getLength()));
 
             //TODO move game logic to a separate method
             Scanner scan;
@@ -58,7 +62,7 @@ public class Client {
         } catch (UnknownHostException e) { System.err.println("IP: " + e.getMessage());
         } catch (SocketException e) { System.err.println("Socket: " + e.getMessage());
         } catch (IOException e) { System.err.println("IO: " + e.getMessage());
-        }finally {
+        } finally {
             aSocket.close();
         }
     }
