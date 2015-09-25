@@ -8,59 +8,32 @@ import java.util.Scanner;
  * Created by johanpettersson on 07/09/15.
  */
 public class Client {
+    private static DatagramSocket aSocket = null;
+    private static InetAddress aHost = null;
+    private static int serverPort = 50120;
+    private static DatagramPacket reply = null;
 
     public static void main(String[] args) {
-        DatagramSocket aSocket = null;
-        int serverPort = 50120;
-
         try {
             aSocket = new DatagramSocket();
             aSocket.setSoTimeout(5000);
-            InetAddress aHost = InetAddress.getLocalHost();
+            aHost = InetAddress.getLocalHost();
 
-            byte[] helloMsg = "hello".getBytes();
-            DatagramPacket request = new DatagramPacket(helloMsg, helloMsg.length, aHost, serverPort);
+            DatagramPacket request = newSendPacket("hello", aHost, serverPort);
             aSocket.send(request);
-
             System.out.println("Sent: " + new String(request.getData(), 0, request.getLength()));
 
-            byte[] buffer = new byte[1000];
-            DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
+            reply = newReceivePacket();
             aSocket.receive(reply);
-
             System.out.println("Got: " + new String(reply.getData(), 0, reply.getLength()));
 
             System.out.println("Connection successfully established");
 
-            //in production
-            byte[] startMsg = "start".getBytes();
-            DatagramPacket startRequest = new DatagramPacket(startMsg, startMsg.length, aHost, serverPort);
+            DatagramPacket startRequest = newSendPacket("start", aHost, serverPort);
             aSocket.send(startRequest);
             System.out.println("Sent: " + new String(startRequest.getData(), 0, startRequest.getLength()));
 
-            //TODO move game logic to a separate method
-            Scanner scan;
-            String guess;
-            String state = "";
-            while(!state.contains("CORRECT")) {
-                scan = new Scanner(System.in);
-                System.out.print("Guess: ");
-                guess = scan.nextLine();
-                aSocket.send(new DatagramPacket(guess.getBytes(), guess.length(), aHost, serverPort));
-
-                buffer = new byte[1000];
-                reply = new DatagramPacket(buffer, buffer.length);
-                aSocket.receive(reply);
-
-                state = new String(reply.getData(), 0, reply.getLength());
-                System.out.println("Reply: " + state);
-            }
-            String finMsg = "FIN";
-            DatagramPacket finDatagramPacket = new DatagramPacket(finMsg.getBytes(), finMsg.length(), aHost, serverPort);
-            aSocket.send(finDatagramPacket);
-            System.out.println("Sent: " + new String(finDatagramPacket.getData(), 0, finDatagramPacket.getLength()));
-            System.out.println("You won! Halting execution.");
-
+            playGame();
         }
         catch (SocketTimeoutException ste) {
             System.err.println("Timeout!");
@@ -77,5 +50,48 @@ public class Client {
         finally {
             aSocket.close();
         }
+    }
+
+    private static void playGame() {
+        try {
+            Scanner scan;
+            String guess;
+            String state = "";
+            while(!state.contains("CORRECT")) {
+                scan = new Scanner(System.in);
+                System.out.print("Guess: ");
+                guess = scan.nextLine();
+                System.out.println(guess);
+                aSocket.send(new DatagramPacket(guess.getBytes(), guess.length(), aHost, serverPort));
+
+                reply = newReceivePacket();
+                aSocket.receive(reply);
+
+                state = new String(reply.getData(), 0, reply.getLength());
+                System.out.println("Reply: " + state);
+            }
+            String finMsg = "FIN";
+            DatagramPacket finDatagramPacket = new DatagramPacket(finMsg.getBytes(), finMsg.length(), aHost, serverPort);
+            aSocket.send(finDatagramPacket);
+            System.out.println("Sent: " + new String(finDatagramPacket.getData(), 0, finDatagramPacket.getLength()));
+            System.out.println("You won! Halting execution.");
+        }
+        catch (IOException ioe) {
+            System.out.println("IO Exception.");
+        }
+    }
+
+    private static DatagramPacket newSendPacket(String text, InetAddress address, int port) {
+        byte[] data = text.getBytes();
+        DatagramPacket packet = new DatagramPacket(data, data.length, address, port);
+
+        return packet;
+    }
+
+    private static DatagramPacket newReceivePacket() {
+        byte[] data = new byte[4096];
+        DatagramPacket packet = new DatagramPacket(data, data.length);
+
+        return packet;
     }
 }
