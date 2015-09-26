@@ -18,32 +18,33 @@ public class Server {
     private static int currentClientPort;
 
     public static void main(String[] args) {
-        int numOfRetries = 0;
         int serverPort = 50120;
 
         try {
             aSocket = new DatagramSocket(serverPort);
 
             while (true) {
-                System.out.println("waiting for connection...");
+                System.out.println("Waiting for connection...");
                 request = newReceivePacket();
-
                 aSocket.receive(request);
                 currentClientIP = request.getAddress();
                 currentClientPort = request.getPort();
+
                 String str = new String(request.getData(), 0, request.getLength());
-                System.out.println(str);
                 if (str.equals("hello")) {
-                    System.out.println("Got: " + new String(request.getData(), 0, request.getLength()));
+                    System.out.println("RECV: " + new String(request.getData(), 0, request.getLength()));
+
                     okDatagramPacket = newSendPacket("OK", request.getAddress(), request.getPort());
                     aSocket.send(okDatagramPacket);
-                    System.out.println("Sent: " + new String(okDatagramPacket.getData(), 0, okDatagramPacket.getLength()));
+                    System.out.println("SENT: OK");
                 }
                 else {
-                    System.out.println("Didn't get hello");
-                    String errorMsg = "FATAL ERROR Received: ".concat(str);
-                    System.out.println(errorMsg);
-                    aSocket.send(new DatagramPacket(errorMsg.getBytes(), errorMsg.length(), request.getAddress(), request.getPort()));
+                    System.out.println("RECV: " + new String(request.getData(), 0, request.getLength()));
+
+                    DatagramPacket HelloErrorDatagram = newSendPacket("ERROR", request.getAddress(), request.getPort());
+                    aSocket.send(HelloErrorDatagram);
+                    System.out.println("SENT: ERROR");
+
                     continue;
                 }
                 System.out.println("Server: Connection successfully established");
@@ -51,7 +52,7 @@ public class Server {
                 startRequest = newReceivePacket();
 
                 try {
-                    aSocket.setSoTimeout(5000);
+                    aSocket.setSoTimeout(10000);
                     aSocket.receive(startRequest);
                 }
                 catch (SocketTimeoutException ste) {
@@ -60,14 +61,21 @@ public class Server {
                 }
 
                 str = new String(startRequest.getData(), 0, startRequest.getLength());
-                System.out.println("Str: " + str);
                 if(str.equals("start")) {
+                    System.out.println("RECV: " + new String(startRequest.getData(), 0, startRequest.getLength()));
+
+                    DatagramPacket gameStartedDatagram = newSendPacket("STARTED", startRequest.getAddress(), startRequest.getPort());
+                    aSocket.send(gameStartedDatagram);
+                    System.out.println("SENT: STARTED");
+
                     playGame();
                 } else {
-                    System.out.println("Didn't get start");
-                    String errorMsg = "FATAL ERROR Received: ".concat(str);
-                    System.out.println(errorMsg);
-                    aSocket.send(new DatagramPacket(errorMsg.getBytes(), errorMsg.length(), request.getAddress(), request.getPort()));
+                    System.out.println("RECV: " + new String(startRequest.getData(), 0, startRequest.getLength()));
+
+                    DatagramPacket startErrorDatagram = newSendPacket("ERROR", startRequest.getAddress(), startRequest.getPort());
+                    aSocket.send(startErrorDatagram);
+                    System.out.println("SENT: ERROR");
+
                     aSocket.setSoTimeout(0);
                     continue;
                 }
@@ -100,7 +108,6 @@ public class Server {
                     aSocket.receive(request);
 
                     if(!(request.getAddress().equals(currentClientIP)) || request.getPort() != currentClientPort) {
-                        System.out.println("Got here!");
                         aSocket.send(newSendPacket("BUSY", request.getAddress(), request.getPort()));
                         continue;
                     }

@@ -23,32 +23,44 @@ public class Client {
             String msg = scan.nextLine();
             DatagramPacket request = newSendPacket(msg, aHost, serverPort);
             aSocket.send(request);
-            System.out.println("Sent: " + new String(request.getData(), 0, request.getLength()));
+            System.out.println("Sent: " + msg);
 
             reply = newReceivePacket();
             aSocket.receive(reply);
 
-            if((new String(reply.getData(), 0, reply.getLength())).equals("BUSY")) {
-                System.err.println("Server is busy!");
+            String receiveMsg = new String(reply.getData(), 0, reply.getLength());
+            if (receiveMsg.equals("ERROR")) {
+                System.err.println(receiveMsg);
+                aSocket.close();
+                return;
+            }
+            else if (receiveMsg.equals("BUSY")) {
+                System.err.println(receiveMsg);
                 aSocket.close();
                 return;
             }
 
-            if(!(new String(reply.getData(), 0, reply.getLength())).equals("OK")) {
-                System.err.println("Didn't get OK from server!");
-                aSocket.close();
-                return;
-            }
-            System.out.println("Got: " + new String(reply.getData(), 0, reply.getLength()));
-
-            System.out.println("Client: Connection successfully established");
+            System.out.println("Got: " + receiveMsg);
 
             msg = scan.nextLine();
             DatagramPacket startRequest = newSendPacket(msg, aHost, serverPort);
             aSocket.send(startRequest);
-            System.out.println("Sent: " + new String(startRequest.getData(), 0, startRequest.getLength()));
+            System.out.println("Sent: " + msg);
 
-            playGame();
+            reply = newReceivePacket();
+            aSocket.receive(reply);
+
+            receiveMsg = new String(reply.getData(), 0, reply.getLength());
+            if (receiveMsg.equals("STARTED")) {
+                playGame();
+            }
+            else {
+                System.err.println(receiveMsg);
+                aSocket.close();
+                return;
+            }
+
+
         }
         catch (SocketTimeoutException ste) {
             System.err.println("Timeout!");
@@ -68,6 +80,7 @@ public class Client {
     }
 
     private static void playGame() {
+        System.out.println("Playing game!");
         try {
             Scanner scan;
             String guess;
