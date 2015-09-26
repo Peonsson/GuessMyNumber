@@ -1,5 +1,7 @@
 package Server;
 
+import sun.security.x509.IPAddressName;
+
 import java.io.IOException;
 import java.net.*;
 
@@ -12,6 +14,8 @@ public class Server {
     private static DatagramPacket request = null;
     private static DatagramPacket okDatagramPacket = null;
     private static DatagramPacket startRequest = null;
+    private static InetAddress currentClientIP = null;
+    private static int currentClientPort;
 
     public static void main(String[] args) {
         int numOfRetries = 0;
@@ -25,7 +29,8 @@ public class Server {
                 request = newReceivePacket();
 
                 aSocket.receive(request);
-
+                currentClientIP = request.getAddress();
+                currentClientPort = request.getPort();
                 String str = new String(request.getData(), 0, request.getLength());
                 System.out.println(str);
                 if (str.equals("hello")) {
@@ -42,7 +47,6 @@ public class Server {
                 }
                 System.out.println("Connection successfully established");
 
-                //in production
                 startRequest = newReceivePacket();
 
                 try {
@@ -83,14 +87,21 @@ public class Server {
 
     private static void playGame() {
         GuessMyNumber myGame = new GuessMyNumber();
+        int answer = -1;
 
         while (true) {
             try {
                 request = newReceivePacket();
-
                 try {
                     aSocket.setSoTimeout(60000);
                     aSocket.receive(request);
+
+                    if(!(request.getAddress().equals(currentClientIP)) || request.getPort() != currentClientPort) {
+                        System.out.println("Got here!");
+                        aSocket.send(newSendPacket("BUSY", request.getAddress(), request.getPort()));
+                        continue;
+                    }
+
                 } catch (SocketTimeoutException ste) {
                     System.out.println("Timed out while waiting for client.");
                     return;
@@ -102,8 +113,6 @@ public class Server {
                     break;
 
                 System.out.println("Got: " + guess);
-                int answer = 0;
-
                 try {
                     answer = Integer.parseInt(new String(request.getData(), 0, request.getLength()));
                 } catch (NumberFormatException e){

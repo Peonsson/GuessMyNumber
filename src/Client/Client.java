@@ -25,6 +25,12 @@ public class Client {
 
             reply = newReceivePacket();
             aSocket.receive(reply);
+
+            if((new String(reply.getData(), 0, reply.getLength())).equals("BUSY")) {
+                System.err.println("Server is busy!");
+                aSocket.close();
+                return;
+            }
             System.out.println("Got: " + new String(reply.getData(), 0, reply.getLength()));
 
             System.out.println("Connection successfully established");
