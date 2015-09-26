@@ -44,8 +44,9 @@ public class Server {
                     String errorMsg = "FATAL ERROR Received: ".concat(str);
                     System.out.println(errorMsg);
                     aSocket.send(new DatagramPacket(errorMsg.getBytes(), errorMsg.length(), request.getAddress(), request.getPort()));
+                    continue;
                 }
-                System.out.println("Connection successfully established");
+                System.out.println("Server: Connection successfully established");
 
                 startRequest = newReceivePacket();
 
@@ -59,14 +60,16 @@ public class Server {
                 }
 
                 str = new String(startRequest.getData(), 0, startRequest.getLength());
-
-                if(str.toLowerCase().equals("start")) {
+                System.out.println("Str: " + str);
+                if(str.equals("start")) {
                     playGame();
                 } else {
                     System.out.println("Didn't get start");
                     String errorMsg = "FATAL ERROR Received: ".concat(str);
                     System.out.println(errorMsg);
                     aSocket.send(new DatagramPacket(errorMsg.getBytes(), errorMsg.length(), request.getAddress(), request.getPort()));
+                    aSocket.setSoTimeout(0);
+                    continue;
                 }
 
                 //TODO Fin handshake?

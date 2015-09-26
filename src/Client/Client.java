@@ -19,7 +19,9 @@ public class Client {
             aSocket.setSoTimeout(5000);
             aHost = InetAddress.getLocalHost();
 
-            DatagramPacket request = newSendPacket("hello", aHost, serverPort);
+            Scanner scan = new Scanner(System.in);
+            String msg = scan.nextLine();
+            DatagramPacket request = newSendPacket(msg, aHost, serverPort);
             aSocket.send(request);
             System.out.println("Sent: " + new String(request.getData(), 0, request.getLength()));
 
@@ -31,11 +33,18 @@ public class Client {
                 aSocket.close();
                 return;
             }
+
+            if(!(new String(reply.getData(), 0, reply.getLength())).equals("OK")) {
+                System.err.println("Didn't get OK from server!");
+                aSocket.close();
+                return;
+            }
             System.out.println("Got: " + new String(reply.getData(), 0, reply.getLength()));
 
-            System.out.println("Connection successfully established");
+            System.out.println("Client: Connection successfully established");
 
-            DatagramPacket startRequest = newSendPacket("start", aHost, serverPort);
+            msg = scan.nextLine();
+            DatagramPacket startRequest = newSendPacket(msg, aHost, serverPort);
             aSocket.send(startRequest);
             System.out.println("Sent: " + new String(startRequest.getData(), 0, startRequest.getLength()));
 
