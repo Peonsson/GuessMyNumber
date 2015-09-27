@@ -93,6 +93,7 @@ public class Client {
                 aSocket.send(new DatagramPacket(guess.getBytes(), guess.length(), aHost, serverPort));
 
                 if (guess.equals("fin")) {
+                    aSocket.close();
                     return;
                 }
 
