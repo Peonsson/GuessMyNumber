@@ -119,8 +119,10 @@ public class Server {
 
                 String guess = new String(request.getData(), 0, request.getLength());
 
-                if (guess.contains("FIN"))
+                if (guess.contains("fin")) {
+                    aSocket.send(newSendPacket("CANCELED", request.getAddress(), request.getPort()));
                     break;
+                }
 
                 System.out.println("Got: " + guess);
                 try {

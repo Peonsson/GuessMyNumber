@@ -89,8 +89,12 @@ public class Client {
                 scan = new Scanner(System.in);
                 System.out.print("Guess: ");
                 guess = scan.nextLine();
-                System.out.println(guess);
+
                 aSocket.send(new DatagramPacket(guess.getBytes(), guess.length(), aHost, serverPort));
+
+                if (guess.equals("fin")) {
+                    return;
+                }
 
                 reply = newReceivePacket();
                 aSocket.receive(reply);
@@ -98,7 +102,7 @@ public class Client {
                 state = new String(reply.getData(), 0, reply.getLength());
                 System.out.println("Reply: " + state);
             }
-            String finMsg = "FIN";
+            String finMsg = "fin";
             DatagramPacket finDatagramPacket = new DatagramPacket(finMsg.getBytes(), finMsg.length(), aHost, serverPort);
             aSocket.send(finDatagramPacket);
             System.out.println("Sent: " + new String(finDatagramPacket.getData(), 0, finDatagramPacket.getLength()));
