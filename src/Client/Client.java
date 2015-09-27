@@ -7,6 +7,7 @@ import java.util.Scanner;
 /**
  * Created by Peonsson and roppe546 on 07/09/15.
  */
+
 public class Client {
     private static DatagramSocket aSocket = null;
     private static InetAddress aHost = null;
@@ -59,8 +60,6 @@ public class Client {
                 aSocket.close();
                 return;
             }
-
-
         }
         catch (SocketTimeoutException ste) {
             System.err.println("Timeout!");

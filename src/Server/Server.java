@@ -8,6 +8,7 @@ import java.net.*;
 /**
  * Created by Peonsson and roppe546 on 07/09/15.
  */
+
 public class Server {
     private static DatagramSocket aSocket = null;
     private static byte[] buffer = null;
@@ -18,8 +19,8 @@ public class Server {
     private static int currentClientPort;
 
     public static void main(String[] args) {
-        int serverPort = 50120;
 
+        int serverPort = 50120;
         try {
             aSocket = new DatagramSocket(serverPort);
 
@@ -79,7 +80,6 @@ public class Server {
                     aSocket.setSoTimeout(0);
                     continue;
                 }
-
                 //TODO Fin handshake?
                 System.out.println("Game over!");
                 aSocket.setSoTimeout(0);
